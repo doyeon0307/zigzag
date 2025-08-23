@@ -5,10 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -32,17 +31,21 @@ internal fun BottomNavigationBar(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp)
             .navigationBarsPadding(),
         color = ZigzagTheme.colors.white
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
             HorizontalDivider(
                 thickness = 0.8.dp,
                 color = ZigzagTheme.colors.black100
             )
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 5.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 content()
@@ -86,7 +89,7 @@ internal fun BottomNavigationBarItem(
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 internal fun BottomNavigationBarPreview() {
     BottomNavigationBar {
