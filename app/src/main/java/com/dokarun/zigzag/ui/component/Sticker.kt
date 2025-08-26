@@ -54,11 +54,11 @@ data class StickerColors(
 )
 
 enum class StickerStyle {
-    Purple;
+    PURPLE;
 
     @Composable
     fun colors(): StickerColors = when (this) {
-        Purple -> StickerColors(
+        PURPLE -> StickerColors(
             foreground = ZigzagTheme.colors.white,
             background = ZigzagTheme.colors.purple500
         )
@@ -70,6 +70,6 @@ enum class StickerStyle {
 internal fun PurpleStickerPreveiw() {
     Sticker(
         label = "직진배송",
-        stickerStyle = StickerStyle.Purple
+        stickerStyle = StickerStyle.PURPLE
     )
 }

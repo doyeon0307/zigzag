@@ -150,7 +150,7 @@ internal fun HorizontalProductCardPreview() {
         discountRate = 19,
         price = 47000,
         badgeLabels = listOf("최저가도전", "무료배송"),
-        badgeStyls = listOf(BadgeStyle.Pink, BadgeStyle.Gray),
+        badgeStyls = listOf(BadgeStyle.PINK, BadgeStyle.GRAY),
         isFavorited = true,
         onFavoriteClick = { },
         showMark = true

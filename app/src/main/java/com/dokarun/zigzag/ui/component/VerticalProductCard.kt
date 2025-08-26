@@ -123,7 +123,7 @@ internal fun VerticalProductCard(
                                     Mark()
                                 }
                             }
-                            if (showMore && size != VerticalProductCardSize.Small) {
+                            if (showMore && size != VerticalProductCardSize.SMALL) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_more),
                                     tint = ZigzagTheme.colors.black200,
@@ -190,7 +190,7 @@ internal fun VerticalProductCard(
                                 color = ZigzagTheme.colors.black300,
                             )
                         }
-                        if (viewCount != null && size != VerticalProductCardSize.Small) {
+                        if (viewCount != null && size != VerticalProductCardSize.SMALL) {
                             Text(
                                 "• ${viewCount.toKoreanCompact()} 번 봤어요",
                                 style = ZigzagTheme.typography.bodySmall,
@@ -214,12 +214,12 @@ data class VerticalProductCardValues(
 )
 
 enum class VerticalProductCardSize {
-    Large,
-    Small;
+    LARGE,
+    SMALL;
 
     @Composable
     fun sizeValues(): VerticalProductCardValues = when (this) {
-        Large -> VerticalProductCardValues(
+        LARGE -> VerticalProductCardValues(
             startPadding = 8.dp,
             endPadding = 8.dp,
             topPadding = 12.dp,
@@ -228,7 +228,7 @@ enum class VerticalProductCardSize {
             iconPadding = 8.dp
         )
 
-        Small -> VerticalProductCardValues(
+        SMALL -> VerticalProductCardValues(
             startPadding = 4.dp,
             endPadding = 4.dp,
             topPadding = 8.dp,
@@ -244,7 +244,7 @@ enum class VerticalProductCardSize {
 internal fun VerticalProductCardLargePreview() {
     VerticalProductCard(
         modifier = Modifier.width(200.dp),
-        size = VerticalProductCardSize.Large,
+        size = VerticalProductCardSize.LARGE,
         image = "akjdfja",
         productName = "[컬러추가][자체제작/3만장돌파][숏/롱] 리고 썸머 와이드 롱 팬츠 -6color",
         storeName = "히니크",
@@ -254,9 +254,9 @@ internal fun VerticalProductCardLargePreview() {
         reviewCount = 3721,
         viewCount = 98298,
         stickerLabel = "직진배송",
-        stickerStyle = StickerStyle.Purple,
+        stickerStyle = StickerStyle.PURPLE,
         badgeLabels = listOf("최저가도전", "무료배송"),
-        badgeStyls = listOf(BadgeStyle.Pink, BadgeStyle.Gray),
+        badgeStyls = listOf(BadgeStyle.PINK, BadgeStyle.GRAY),
         isFavorited = true,
         onFavoriteClick = {},
         showMark = true,
@@ -269,7 +269,7 @@ internal fun VerticalProductCardLargePreview() {
 internal fun VerticalProductCardSmallPreview() {
     VerticalProductCard(
         modifier = Modifier.width(120.dp),
-        size = VerticalProductCardSize.Small,
+        size = VerticalProductCardSize.SMALL,
         image = "akjdfja",
         productName = "[컬러추가][자체제작/3만장돌파][숏/롱] 리고 썸머 와이드 롱 팬츠 -6color",
         storeName = "히니크",
@@ -279,9 +279,9 @@ internal fun VerticalProductCardSmallPreview() {
         reviewCount = 3721,
         viewCount = 987,
         stickerLabel = "직진배송",
-        stickerStyle = StickerStyle.Purple,
+        stickerStyle = StickerStyle.PURPLE,
         badgeLabels = listOf("최저가도전", "무료배송"),
-        badgeStyls = listOf(BadgeStyle.Pink, BadgeStyle.Gray),
+        badgeStyls = listOf(BadgeStyle.PINK, BadgeStyle.GRAY),
         isFavorited = true,
         onFavoriteClick = {},
         showMark = false,

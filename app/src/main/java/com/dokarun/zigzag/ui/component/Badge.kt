@@ -56,16 +56,16 @@ data class BadgeColors(
 )
 
 enum class BadgeStyle {
-    Gray,
-    Pink;
+    GRAY,
+    PINK;
 
     @Composable
     fun colors(): BadgeColors = when (this) {
-        Gray -> BadgeColors(
+        GRAY -> BadgeColors(
             foreground = ZigzagTheme.colors.black300,
             background = ZigzagTheme.colors.black100
         )
-        Pink -> BadgeColors(
+        PINK -> BadgeColors(
             foreground = ZigzagTheme.colors.pink800,
             background = ZigzagTheme.colors.pink100
         )
@@ -77,7 +77,7 @@ enum class BadgeStyle {
 internal fun GrayBadgePreview() {
     Badge(
         label = "무료배송",
-        badgeStyle = BadgeStyle.Gray
+        badgeStyle = BadgeStyle.GRAY
     )
 }
 
@@ -86,6 +86,6 @@ internal fun GrayBadgePreview() {
 internal fun PinkBadgePreview() {
     Badge(
         label = "무료배송",
-        badgeStyle = BadgeStyle.Pink
+        badgeStyle = BadgeStyle.PINK
     )
 }
