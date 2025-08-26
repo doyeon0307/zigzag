@@ -1,4 +1,4 @@
-package com.dokarun.zigzag.ui.comopnent
+package com.dokarun.zigzag.ui.component
 
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource

@@ -137,7 +137,7 @@ data class ZigzagTypography(
     ),
     val bodyLarge: TextStyle = TextStyle(
         fontFamily = Pretendard,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = (-0.02).em,
@@ -151,7 +151,7 @@ data class ZigzagTypography(
     ),
     val bodyMedium: TextStyle = TextStyle(
         fontFamily = Pretendard,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = (-0.02).em,
@@ -165,7 +165,7 @@ data class ZigzagTypography(
     ),
     val bodySmall: TextStyle = TextStyle(
         fontFamily = Pretendard,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
         lineHeight = 16.sp,
         letterSpacing = (-0.02).em,

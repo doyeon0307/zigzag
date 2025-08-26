@@ -5,7 +5,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,15 +16,14 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import com.dokarun.zigzag.ui.category.categoryGraph
-import com.dokarun.zigzag.ui.comopnent.BottomNavigationBar
-import com.dokarun.zigzag.ui.comopnent.BottomNavigationBarItem
+import com.dokarun.zigzag.ui.component.BottomNavigationBar
+import com.dokarun.zigzag.ui.component.BottomNavigationBarItem
 import com.dokarun.zigzag.ui.favorite.favoriteGraph
 import com.dokarun.zigzag.ui.home.homeGraph
 import com.dokarun.zigzag.ui.mypage.mypageGraph
 import com.dokarun.zigzag.ui.store.storeGraph
 import com.dokarun.zigzag.ui.theme.ZigzagTheme
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ZigzagNavHost(appState: ZigzagAppState) {

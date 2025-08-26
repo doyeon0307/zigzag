@@ -1,4 +1,4 @@
-package com.dokarun.zigzag.ui.comopnent
+package com.dokarun.zigzag.ui.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
