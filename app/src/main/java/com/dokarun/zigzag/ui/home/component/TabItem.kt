@@ -22,8 +22,8 @@ internal fun TabItem(
     label: String,
     isSelected: Boolean,
     onClick: () -> Unit,
-    selectedColor: Color = ZigzagTheme.colors.black700,
-    unselectedColor: Color = ZigzagTheme.colors.black300,
+    selectedColor: Color? = null,
+    unselectedColor: Color? = null,
 ) {
     Surface(
         modifier = modifier,
@@ -31,8 +31,10 @@ internal fun TabItem(
         onClick = onClick,
         interactionSource = NoRippleInteractionSource()
     ) {
+        val selectedColor = selectedColor ?: ZigzagTheme.colors.black700
+        val unselectedColor = unselectedColor ?: ZigzagTheme.colors.black300
         Box(
-            modifier = Modifier.padding(horizontal = 12.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.dokarun.zigzag.R
+import com.dokarun.zigzag.ui.domain.model.ProductUiModel
 import com.dokarun.zigzag.ui.theme.ZigzagTheme
 import com.dokarun.zigzag.util.addComma
 import com.dokarun.zigzag.util.toKoreanCompact
@@ -33,22 +34,9 @@ import com.dokarun.zigzag.util.toKoreanCompact
 internal fun VerticalProductCard(
     modifier: Modifier = Modifier,
     size: VerticalProductCardSize,
-    image: String,
-    productName: String,
-    storeName: String,
-    discountRate: Int? = null,
-    price: Int,
-    rating: Float,
-    reviewCount: Int,
-    viewCount: Int? = null,
-    stickerLabel: String? = null,
-    stickerStyle: StickerStyle? = null,
-    badgeLabels: List<String>? = null,
-    badgeStyls: List<BadgeStyle>? = null,
-    isFavorited: Boolean,
+    data: ProductUiModel,
+    showMore: Boolean = true,
     onFavoriteClick: () -> Unit,
-    showMark: Boolean,
-    showMore: Boolean,
 ) {
     Surface(
         modifier = modifier,
@@ -63,16 +51,16 @@ internal fun VerticalProductCard(
                     .aspectRatio(5f / 6f)
             ) {
                 AsyncImage(
-                    model = image,
+                    model = data.image,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                if (stickerLabel != null && stickerStyle != null) {
+                if (data.stickerLabel != null && data.stickerStyle != null) {
                     Sticker(
                         modifier = Modifier.align(Alignment.BottomStart),
-                        label = stickerLabel,
-                        stickerStyle = stickerStyle
+                        label = data.stickerLabel,
+                        stickerStyle = data.stickerStyle
                     )
                 }
                 Surface(
@@ -85,9 +73,9 @@ internal fun VerticalProductCard(
                     interactionSource = NoRippleInteractionSource(),
                 ) {
                     Icon(
-                        painter = painterResource(id = if (isFavorited) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_outlined),
+                        painter = painterResource(id = if (data.isFavorited) R.drawable.ic_favorite_filled else R.drawable.ic_favorite_outlined),
                         contentDescription = null,
-                        tint = if (isFavorited) ZigzagTheme.colors.red500 else ZigzagTheme.colors.white,
+                        tint = if (data.isFavorited) ZigzagTheme.colors.red500 else ZigzagTheme.colors.white,
                     )
                 }
             }
@@ -115,11 +103,11 @@ internal fun VerticalProductCard(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    storeName,
+                                    data.storeName,
                                     style = ZigzagTheme.typography.titleSmall,
                                     color = ZigzagTheme.colors.black700
                                 )
-                                if (showMark) {
+                                if (data.isMarked) {
                                     Mark()
                                 }
                             }
@@ -132,7 +120,7 @@ internal fun VerticalProductCard(
                             }
                         }
                         Text(
-                            productName,
+                            data.productName,
                             style = ZigzagTheme.typography.bodyMedium,
                             color = ZigzagTheme.colors.black700,
                             maxLines = 1,
@@ -141,27 +129,27 @@ internal fun VerticalProductCard(
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            if (discountRate != null) {
+                            if (data.discountRate != null) {
                                 Text(
-                                    "$discountRate%",
+                                    "${data.discountRate}%",
                                     style = ZigzagTheme.typography.titleMedium,
                                     color = ZigzagTheme.colors.pink500,
                                 )
                             }
                             Text(
-                                price.addComma(),
+                                data.price.addComma(),
                                 style = ZigzagTheme.typography.titleMedium,
                                 color = ZigzagTheme.colors.black700,
                             )
                         }
-                        if (badgeLabels != null && badgeStyls != null) {
+                        if (data.badgeLabels != null && data.badgeStyls != null) {
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(2.dp)
                             ) {
-                                badgeLabels.forEachIndexed { index, label ->
+                                data.badgeLabels.forEachIndexed { index, label ->
                                     Badge(
                                         label = label,
-                                        badgeStyle = badgeStyls[index]
+                                        badgeStyle = data.badgeStyls[index]
                                     )
                                 }
                             }
@@ -180,19 +168,21 @@ internal fun VerticalProductCard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                rating.toString(),
+                                data.rating.toString(),
                                 style = ZigzagTheme.typography.labelMedium,
                                 color = ZigzagTheme.colors.black300,
                             )
-                            Text(
-                                "(${reviewCount.addComma()})",
-                                style = ZigzagTheme.typography.bodySmall,
-                                color = ZigzagTheme.colors.black300,
-                            )
+                            if (data.reviewCount != null) {
+                                Text(
+                                    "(${data.reviewCount.addComma()})",
+                                    style = ZigzagTheme.typography.bodySmall,
+                                    color = ZigzagTheme.colors.black300,
+                                )
+                            }
                         }
-                        if (viewCount != null && size != VerticalProductCardSize.SMALL) {
+                        if (data.viewCount != null && size != VerticalProductCardSize.SMALL) {
                             Text(
-                                "• ${viewCount.toKoreanCompact()} 번 봤어요",
+                                "• ${data.viewCount.toKoreanCompact()} 번 봤어요",
                                 style = ZigzagTheme.typography.bodySmall,
                                 color = ZigzagTheme.colors.black300,
                             )
@@ -245,21 +235,24 @@ internal fun VerticalProductCardLargePreview() {
     VerticalProductCard(
         modifier = Modifier.width(200.dp),
         size = VerticalProductCardSize.LARGE,
-        image = "akjdfja",
-        productName = "[컬러추가][자체제작/3만장돌파][숏/롱] 리고 썸머 와이드 롱 팬츠 -6color",
-        storeName = "히니크",
-        discountRate = 19,
-        price = 47600,
-        rating = 4.8f,
-        reviewCount = 3721,
-        viewCount = 98298,
-        stickerLabel = "직진배송",
-        stickerStyle = StickerStyle.PURPLE,
-        badgeLabels = listOf("최저가도전", "무료배송"),
-        badgeStyls = listOf(BadgeStyle.PINK, BadgeStyle.GRAY),
-        isFavorited = true,
+        data = ProductUiModel(
+            id = 1,
+            image = "akjdfja",
+            productName = "[컬러추가][자체제작/3만장돌파][숏/롱] 리고 썸머 와이드 롱 팬츠 -6color",
+            storeName = "히니크",
+            discountRate = 19,
+            price = 47600,
+            rating = 4.8f,
+            reviewCount = 3721,
+            viewCount = 98298,
+            stickerLabel = "직진배송",
+            stickerStyle = StickerStyle.PURPLE,
+            badgeLabels = listOf("최저가도전", "무료배송"),
+            badgeStyls = listOf(BadgeStyle.PINK, BadgeStyle.GRAY),
+            isFavorited = true,
+            isMarked = true,
+        ),
         onFavoriteClick = {},
-        showMark = true,
         showMore = true
     )
 }
@@ -270,21 +263,24 @@ internal fun VerticalProductCardSmallPreview() {
     VerticalProductCard(
         modifier = Modifier.width(120.dp),
         size = VerticalProductCardSize.SMALL,
-        image = "akjdfja",
-        productName = "[컬러추가][자체제작/3만장돌파][숏/롱] 리고 썸머 와이드 롱 팬츠 -6color",
-        storeName = "히니크",
-        discountRate = 19,
-        price = 47600,
-        rating = 4.8f,
-        reviewCount = 3721,
-        viewCount = 987,
-        stickerLabel = "직진배송",
-        stickerStyle = StickerStyle.PURPLE,
-        badgeLabels = listOf("최저가도전", "무료배송"),
-        badgeStyls = listOf(BadgeStyle.PINK, BadgeStyle.GRAY),
-        isFavorited = true,
+        data = ProductUiModel(
+            id = 1,
+            image = "akjdfja",
+            productName = "[컬러추가][자체제작/3만장돌파][숏/롱] 리고 썸머 와이드 롱 팬츠 -6color",
+            storeName = "히니크",
+            discountRate = 19,
+            price = 47600,
+            rating = 4.8f,
+            reviewCount = 3721,
+            viewCount = 98298,
+            stickerLabel = "직진배송",
+            stickerStyle = StickerStyle.PURPLE,
+            badgeLabels = listOf("최저가도전", "무료배송"),
+            badgeStyls = listOf(BadgeStyle.PINK, BadgeStyle.GRAY),
+            isFavorited = true,
+            isMarked = true,
+        ),
         onFavoriteClick = {},
-        showMark = false,
         showMore = true
     )
 }

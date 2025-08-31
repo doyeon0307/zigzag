@@ -1,12 +1,11 @@
 package com.dokarun.zigzag
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -30,7 +29,9 @@ fun ZigzagNavHost(appState: ZigzagAppState) {
     val navController = appState.navController
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .systemBarsPadding(),
         bottomBar = {
             Surface(
                 color = ZigzagTheme.colors.white
@@ -56,7 +57,9 @@ fun ZigzagNavHost(appState: ZigzagAppState) {
             startDestination = Routes.Home.ROUTE,
             modifier = Modifier.padding(paddingValues),
         ) {
-            homeGraph()
+            homeGraph(
+                appState = appState
+            )
             storeGraph()
             categoryGraph()
             favoriteGraph()
