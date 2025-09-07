@@ -1,5 +1,6 @@
 package com.dokarun.zigzag.ui.home
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,11 +21,15 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -33,10 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import com.dokarun.zigzag.ZigzagAppState
 import com.dokarun.zigzag.ui.component.LargeButton
-import com.dokarun.zigzag.ui.component.TextLogo
 import com.dokarun.zigzag.ui.component.VerticalProductCard
 import com.dokarun.zigzag.ui.component.VerticalProductCardSize
 import com.dokarun.zigzag.ui.component.VoteCard
+import com.dokarun.zigzag.ui.home.component.HomeAppBar
 import com.dokarun.zigzag.ui.home.component.HomeCategoryRow
 import com.dokarun.zigzag.ui.home.component.HomeTabRow
 import com.dokarun.zigzag.ui.home.component.HomeTitle
@@ -76,21 +81,40 @@ internal fun HomeScreen(
         }
     }
 
+var showAppBarFloating by remember { mutableStateOf(false) }
+
+LaunchedEffect(listState) {
+    var previousIndex = 0
+    var previousOffset = 0
+
+    snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+        .collect { (currentIndex, currentOffset) ->
+            val isScrollingUp = if (previousIndex != currentIndex) {
+                previousIndex > currentIndex
+            } else {
+                previousOffset > currentOffset
+            }
+
+            previousIndex = currentIndex
+            previousOffset = currentOffset
+
+            showAppBarFloating = isScrollingUp && previousIndex != 0
+        }
+}
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(color = ZigzagTheme.colors.white),
     ) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize(),
-        ) {
+LazyColumn(
+    state = listState,
+    modifier = Modifier.fillMaxSize(),
+) {
             // 로고
             // 첫 번째 아이템 > 지나면 플로팅 노출
             item {
-                TextLogo(
-                    modifier = Modifier.padding(start = 16.dp, top = 20.dp, bottom = 20.dp)
-                )
+                HomeAppBar()
             }
             // 탭
             item {
@@ -251,8 +275,10 @@ internal fun HomeScreen(
         ) {
             Column(
                 modifier = Modifier.padding(vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                if (showAppBarFloating) {
+                    HomeAppBar()
+                }
                 if (showTabFloating) {
                     HomeTabRow(
                         tabLabels = uiState.tabLabels,
@@ -262,6 +288,7 @@ internal fun HomeScreen(
                 }
                 if (showCategoryFloating) {
                     HomeCategoryRow(
+                        modifier = Modifier.padding(top = 12.dp),
                         categoryLabels = uiState.categoryLabels,
                         selectedCategoryIndex = uiState.selectedCategoryIndex,
                         onCategoryClick = { index -> viewModel.onCategoryClick(index) }
