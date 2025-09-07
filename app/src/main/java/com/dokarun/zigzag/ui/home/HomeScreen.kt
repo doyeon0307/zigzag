@@ -17,10 +17,14 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -28,16 +32,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import com.dokarun.zigzag.ZigzagAppState
-import com.dokarun.zigzag.ui.component.Chip
 import com.dokarun.zigzag.ui.component.LargeButton
 import com.dokarun.zigzag.ui.component.TextLogo
 import com.dokarun.zigzag.ui.component.VerticalProductCard
 import com.dokarun.zigzag.ui.component.VerticalProductCardSize
 import com.dokarun.zigzag.ui.component.VoteCard
+import com.dokarun.zigzag.ui.home.component.HomeCategoryRow
+import com.dokarun.zigzag.ui.home.component.HomeTabRow
 import com.dokarun.zigzag.ui.home.component.HomeTitle
 import com.dokarun.zigzag.ui.home.component.MainBannerHorizontalPager
 import com.dokarun.zigzag.ui.home.component.QuickMenu
-import com.dokarun.zigzag.ui.home.component.TabItem
 import com.dokarun.zigzag.ui.home.component.VoteTitle
 import com.dokarun.zigzag.ui.theme.ZigzagTheme
 
@@ -58,135 +62,140 @@ internal fun HomeScreen(
 
     val context = LocalContext.current
 
+    val listState = rememberLazyListState()
+
+    val showTabFloating by remember<State<Boolean>> {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0
+        }
+    }
+
+    val showCategoryFloating by remember<State<Boolean>> {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 2
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(color = ZigzagTheme.colors.white),
     ) {
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(32.dp)
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
         ) {
-            // 메인
+            // 로고
+            // 첫 번째 아이템 > 지나면 플로팅 노출
             item {
-                Column {
-                    // 로고
-                    TextLogo(
-                        modifier = Modifier.padding(start = 16.dp, top = 20.dp, bottom = 20.dp)
+                TextLogo(
+                    modifier = Modifier.padding(start = 16.dp, top = 20.dp, bottom = 20.dp)
+                )
+            }
+            // 탭
+            item {
+                HomeTabRow(
+                    tabLabels = uiState.tabLabels,
+                    selectedTabIndex = uiState.selectedTabIndex,
+                    onTabClick = { index -> viewModel.onTabClick(index) }
+                )
+            }
+            // 메인 배너 & 퀵메뉴
+            item {
+                Column(
+                    modifier = Modifier.padding(vertical = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // 메인 배너
+                    MainBannerHorizontalPager(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        state = pagerState,
+                        banners = uiState.mainBanners,
+                        onBannerClick = {}
                     )
-                    // 탭
+                    // 퀵메뉴
                     LazyRow {
-                        itemsIndexed(uiState.tabLabels) { index, label ->
-                            TabItem(
-                                label = label,
-                                isSelected = index == uiState.selectedTabIndex,
-                                onClick = { viewModel.onTabClick(index) },
-                                selectedColor = if (index == 0) ZigzagTheme.colors.white else null,
-                                unselectedColor = if (index == 0) ZigzagTheme.colors.navy500 else null,
+                        itemsIndexed(uiState.quickMenus) { index, menu ->
+                            QuickMenu(
+                                modifier = Modifier.padding(
+                                    start = if (index == 0) 16.dp else 0.dp,
+                                    end = 16.dp
+                                ),
+                                image = menu.image,
+                                label = menu.title,
+                                onClick = {}
                             )
-                        }
-                    }
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // 메인 배너
-                        MainBannerHorizontalPager(
-                            modifier = Modifier.padding(horizontal = 20.dp),
-                            state = pagerState,
-                            banners = uiState.mainBanners,
-                            onBannerClick = {}
-                        )
-                        // 퀵메뉴
-                        LazyRow {
-                            itemsIndexed(uiState.quickMenus) { index, menu ->
-                                QuickMenu(
-                                    modifier = Modifier.padding(
-                                        start = if (index == 0) 16.dp else 0.dp,
-                                        end = 16.dp
-                                    ),
-                                    image = menu.image,
-                                    label = menu.title,
-                                    onClick = {}
-                                )
-                            }
                         }
                     }
                 }
             }
             // 추천 상품
+            // 추천 아이템 타이틀
+            // 두 번째 아이템 > 지나면 플로팅 노출
             item {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 32.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // 추천 아이템 타이틀
+                    HomeTitle(
+                        title = "${uiState.userName}님을 위한 추천 아이템",
+                    )
+                    Text(
+                        "Sponsored",
+                        style = ZigzagTheme.typography.labelSmall,
+                        color = ZigzagTheme.colors.black200
+                    )
+                }
+            }
+            // 카테고리 칩
+            item {
+                HomeCategoryRow(
+                    modifier = Modifier.padding(vertical = 20.dp),
+                    categoryLabels = uiState.categoryLabels,
+                    selectedCategoryIndex = uiState.selectedCategoryIndex,
+                    onCategoryClick = { index -> viewModel.onCategoryClick(index) }
+                )
+            }
+            // 카테고리 전체 선택 시에만 노출되는 구좌
+            item {
+                if (uiState.selectedCategoryIndex == 0) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(horizontal = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        HomeTitle(
-                            title = "${uiState.userName}님을 위한 추천 아이템",
-                        )
-                        Text(
-                            "Sponsored",
-                            style = ZigzagTheme.typography.labelSmall,
-                            color = ZigzagTheme.colors.black200
-                        )
-                    }
-                    // 카테고리 칩
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        itemsIndexed(uiState.categoryLabels) { index, label ->
-                            Chip(
-                                modifier = Modifier.padding(
-                                    start = if (index == 0) 16.dp else 0.dp,
-                                    end = if (index == uiState.categoryLabels.size - 1) 16.dp else 0.dp
-                                ),
-                                label = label,
-                                isSelected = index == uiState.selectedCategoryIndex,
-                                onClick = { viewModel.onCategoryClick(index) },
-                            )
-                        }
-                    }
-                    // 카테고리 전체 선택 시에만 노출되는 구좌
-                    if (uiState.selectedCategoryIndex == 0) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp),
-                            horizontalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            uiState.allCategoryProducts.map { it ->
-                                VerticalProductCard(
-                                    modifier = Modifier.weight(1f),
-                                    size = VerticalProductCardSize.SMALL,
-                                    data = it,
-                                    onFavoriteClick = {},
-                                )
-                            }
-                        }
-                    }
-                    // 카테고리별 상품
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        modifier = Modifier
-                            .height(largeProductCardHeight * 2)
-                            .padding(bottom = 40.dp),
-                        horizontalArrangement = Arrangement.spacedBy(2.dp),
-                        userScrollEnabled = false
-                    ) {
-                        items(uiState.categoryProducts) { product ->
+                        uiState.allCategoryProducts.map { it ->
                             VerticalProductCard(
-                                size = VerticalProductCardSize.LARGE,
-                                data = product,
-                                showMore = true,
+                                modifier = Modifier.weight(1f),
+                                size = VerticalProductCardSize.SMALL,
+                                data = it,
                                 onFavoriteClick = {},
                             )
                         }
+                    }
+                }
+            }
+            // 카테고리별 상품
+            item {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier
+                        .height(largeProductCardHeight * 2)
+                        .padding(bottom = 40.dp),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    userScrollEnabled = false
+                ) {
+                    items(uiState.categoryProducts) { product ->
+                        VerticalProductCard(
+                            size = VerticalProductCardSize.LARGE,
+                            data = product,
+                            showMore = true,
+                            onFavoriteClick = {},
+                        )
                     }
                 }
             }
@@ -233,6 +242,30 @@ internal fun HomeScreen(
                             }
                         )
                     }
+                }
+            }
+        }
+        Surface(
+            color = ZigzagTheme.colors.white,
+            shadowElevation = 4.dp,
+        ) {
+            Column(
+                modifier = Modifier.padding(vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                if (showTabFloating) {
+                    HomeTabRow(
+                        tabLabels = uiState.tabLabels,
+                        selectedTabIndex = uiState.selectedTabIndex,
+                        onTabClick = { index -> viewModel.onTabClick(index) }
+                    )
+                }
+                if (showCategoryFloating) {
+                    HomeCategoryRow(
+                        categoryLabels = uiState.categoryLabels,
+                        selectedCategoryIndex = uiState.selectedCategoryIndex,
+                        onCategoryClick = { index -> viewModel.onCategoryClick(index) }
+                    )
                 }
             }
         }

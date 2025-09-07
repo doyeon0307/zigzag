@@ -119,7 +119,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     }
 
     fun getUserName() {
-        _uiState.value = _uiState.value.copy(userName = "전도연")
+        _uiState.value = _uiState.value.copy(userName = "오카룽")
     }
 
     fun getAllCategoryProducts() {
