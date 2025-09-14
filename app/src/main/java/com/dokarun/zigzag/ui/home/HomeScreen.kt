@@ -28,6 +28,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -49,6 +50,7 @@ import com.dokarun.zigzag.ui.home.component.MainBannerHorizontalPager
 import com.dokarun.zigzag.ui.home.component.QuickMenu
 import com.dokarun.zigzag.ui.home.component.VoteTitle
 import com.dokarun.zigzag.ui.theme.ZigzagTheme
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun HomeScreen(
@@ -81,36 +83,56 @@ internal fun HomeScreen(
         }
     }
 
-var showAppBarFloating by remember { mutableStateOf(false) }
+    var showAppBarFloating by remember { mutableStateOf(false) }
 
-LaunchedEffect(listState) {
-    var previousIndex = 0
-    var previousOffset = 0
-
-    snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
-        .collect { (currentIndex, currentOffset) ->
-            val isScrollingUp = if (previousIndex != currentIndex) {
-                previousIndex > currentIndex
-            } else {
-                previousOffset > currentOffset
-            }
-
-            previousIndex = currentIndex
-            previousOffset = currentOffset
-
-            showAppBarFloating = isScrollingUp && previousIndex != 0
+    val scrollIndex by remember<State<Int>> {
+        // 앱바 안보이는 상태 > 3
+        // 앱바 보이는 상태
+        derivedStateOf {
+            3
         }
-}
+    }
+
+    val scrollOffest by remember<State<Int>> {
+        // 앱바 안보이는 상태 > 80
+        // 앱바 보이는 상태
+        derivedStateOf {
+            80
+        }
+    }
+
+    var isAutoScroll by remember { mutableStateOf(false) }
+
+    LaunchedEffect(listState) {
+        var previousIndex = 0
+        var previousOffset = 0
+
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+            .collect { (currentIndex, currentOffset) ->
+                if (isAutoScroll) return@collect
+
+                val isScrollingUp = if (previousIndex != currentIndex) {
+                    previousIndex > currentIndex
+                } else {
+                    previousOffset > currentOffset
+                }
+
+                previousIndex = currentIndex
+                previousOffset = currentOffset
+
+                showAppBarFloating = isScrollingUp && previousIndex != 0
+            }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(color = ZigzagTheme.colors.white),
     ) {
-LazyColumn(
-    state = listState,
-    modifier = Modifier.fillMaxSize(),
-) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+        ) {
             // 로고
             // 첫 번째 아이템 > 지나면 플로팅 노출
             item {
@@ -176,11 +198,24 @@ LazyColumn(
             }
             // 카테고리 칩
             item {
+                val coroutineScope = rememberCoroutineScope()
+
                 HomeCategoryRow(
                     modifier = Modifier.padding(vertical = 20.dp),
                     categoryLabels = uiState.categoryLabels,
                     selectedCategoryIndex = uiState.selectedCategoryIndex,
-                    onCategoryClick = { index -> viewModel.onCategoryClick(index) }
+                    onCategoryClick = { index ->
+                        viewModel.onCategoryClick(index)
+                        // 카테고리 칩 클릭 시 스크롤
+                        coroutineScope.launch {
+                            isAutoScroll = true
+                            listState.animateScrollToItem(
+                                index = scrollIndex,
+                                scrollOffset = scrollOffest,
+                            )
+                            isAutoScroll = false
+                        }
+                    }
                 )
             }
             // 카테고리 전체 선택 시에만 노출되는 구좌
@@ -273,8 +308,10 @@ LazyColumn(
             color = ZigzagTheme.colors.white,
             shadowElevation = 4.dp,
         ) {
+            val coroutineScope = rememberCoroutineScope()
+
             Column(
-                modifier = Modifier.padding(vertical = 12.dp),
+                modifier = Modifier.padding(vertical = 4.dp),
             ) {
                 if (showAppBarFloating) {
                     HomeAppBar()
@@ -288,10 +325,21 @@ LazyColumn(
                 }
                 if (showCategoryFloating) {
                     HomeCategoryRow(
-                        modifier = Modifier.padding(top = 12.dp),
+                        modifier = Modifier.padding(top = 8.dp),
                         categoryLabels = uiState.categoryLabels,
                         selectedCategoryIndex = uiState.selectedCategoryIndex,
-                        onCategoryClick = { index -> viewModel.onCategoryClick(index) }
+                        onCategoryClick = { index ->
+                            viewModel.onCategoryClick(index)
+                            // 카테고리 칩 클릭 시 스크롤
+                            coroutineScope.launch {
+                                isAutoScroll = true
+                                listState.animateScrollToItem(
+                                    index = scrollIndex,
+                                    scrollOffset = scrollOffest
+                                )
+                                isAutoScroll = false
+                            }
+                        }
                     )
                 }
             }
